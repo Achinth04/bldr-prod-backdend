@@ -167,6 +167,7 @@ def scrape():
         return jsonify({"error": "Missing 'query' in request body"}), 400
     try:
         result = scrape_ku_classes_live(data['query'])
+        print(json.dumps(result, indent=2))
         return jsonify(result), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
