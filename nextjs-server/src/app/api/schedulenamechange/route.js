@@ -1,4 +1,7 @@
 import { supabase } from '../../lib/supabaseClient';
+import { DateTime } from "luxon";
+
+const chicagoTime = DateTime.now().setZone('America/Chicago').toISO();
 export async function POST(req) {
   try {
     const { scheduleid, newScheduleName } = await req.json();
@@ -9,7 +12,7 @@ export async function POST(req) {
 
     const { data, error } = await supabase
       .from('allschedules')
-      .update({ schedulename: newScheduleName, lastedited: new Date().toISOString() })
+      .update({ schedulename: newScheduleName, lastedited: chicagoTime })
       .eq('scheduleid', scheduleid)
       .select();
 
