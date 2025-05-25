@@ -3,111 +3,159 @@
 import { useState, useEffect } from 'react';
 
 export default function TestingPage() {
-  const [onlineID, setOnlineID] = useState('');
-  const [password, setPassword] = useState('');
-  const [response, setResponse] = useState('');
+  /* ---------- auth + search state ---------- */
+  const [onlineID, setOnlineID]       = useState('');
+  const [password, setPassword]       = useState('');
+  const [response, setResponse]       = useState('');
 
-  const [search, setSearch] = useState('');
+  const [search, setSearch]           = useState('');
   const [classResults, setClassResults] = useState([]);
 
-  // Debounce logic
+  /* ---------- schedule-creation state ---------- */
+  const [schedName, setSchedName]     = useState('');
+  const [semester, setSemester]       = useState('');
+  const [year, setYear]               = useState('');
+  const [schedResp, setSchedResp]     = useState('');
+
+  /* ---------- live-class search debounce ---------- */
   useEffect(() => {
     const delay = setTimeout(() => {
-      if (search.trim().length === 0) {
+      if (!search.trim()) {
         setClassResults([]);
         return;
       }
-
       fetch('/api/searchclass', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: search }),
       })
-        .then(res => res.json())
-        .then(data => setClassResults(data || []))
-        .catch(err => {
-          console.error('Search error:', err);
-          setClassResults([]);
-        });
+        .then(r => r.json())
+        .then(d => setClassResults(d || []))
+        .catch(() => setClassResults([]));
     }, 300);
-
     return () => clearTimeout(delay);
   }, [search]);
 
-  const callAPI = async (endpoint) => {
-    const res = await fetch(`/api/${endpoint}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ onlineID, password }),
+  /* ---------- helpers ---------- */
+  const callAPI = async (endpoint, bodyObj, setFn) => {
+    const r   = await fetch(`/api/${endpoint}`, {
+      method : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body   : JSON.stringify(bodyObj),
     });
-
-    const data = await res.json();
-    setResponse(JSON.stringify(data, null, 2));
+    const d = await r.json();
+    setFn(JSON.stringify(d, null, 2));
   };
 
+  /* ---------- render ---------- */
   return (
-    <div className="p-8 max-w-xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold mb-4">🧪 API Testing Page</h1>
+    <div className="p-8 max-w-xl mx-auto space-y-8 text-black">
+      <h1 className="text-2xl font-bold">🧪 API Testing Page</h1>
 
-      {/* Signup/Login Section */}
-      <div className="space-y-2">
+      {/* ---------- signup / login ---------- */}
+      <section className="space-y-2">
+        <h2 className="font-semibold text-lg">Auth tester</h2>
         <input
           className="border p-2 w-full"
-          type="text"
           placeholder="Online ID"
           value={onlineID}
-          onChange={(e) => setOnlineID(e.target.value)}
+          onChange={e => setOnlineID(e.target.value)}
         />
         <input
           className="border p-2 w-full"
           type="password"
           placeholder="Password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={e => setPassword(e.target.value)}
         />
-        <div className="space-x-2 mt-2">
+        <div className="space-x-2">
           <button
             className="bg-green-600 text-white px-4 py-2 rounded"
-            onClick={() => callAPI('signUp')}
+            onClick={() =>
+              callAPI('signUp', { onlineID, password }, setResponse)
+            }
           >
             Signup
           </button>
           <button
             className="bg-blue-600 text-white px-4 py-2 rounded"
-            onClick={() => callAPI('login')}
+            onClick={() =>
+              callAPI('login', { onlineID, password }, setResponse)
+            }
           >
             Login
           </button>
         </div>
-      </div>
+        <pre className="bg-gray-100 p-3 rounded text-sm">{response}</pre>
+      </section>
 
-      <div>
-        <h2 className="font-semibold">Signup/Login Response:</h2>
-        <pre className="bg-gray-100 p-4 rounded text-sm text-black">{response}</pre>
-      </div>
+      <hr />
 
-      {/* Live Class Search Section */}
-      <div className="border-t pt-6 space-y-2">
-        <h2 className="text-xl font-semibold">🔎 Live Class Search</h2>
+      {/* ---------- live class search ---------- */}
+      <section className="space-y-2">
+        <h2 className="font-semibold text-lg">🔎 Live Class Search</h2>
         <input
           className="border p-2 w-full"
-          type="text"
-          placeholder="Search class title or dept..."
+          placeholder="Search class title / dept / code…"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={e => setSearch(e.target.value)}
         />
         {classResults.length > 0 && (
-          <ul className="border rounded bg-white shadow mt-2 max-h-64 overflow-y-auto">
-            {classResults.map((cls) => (
-              <li key={cls.uuid} className="p-2 border-b last:border-0">
-                <strong>{cls.dept} {cls.code}</strong> - {cls.title}
+          <ul className="border rounded shadow max-h-64 overflow-y-auto mt-2 bg-white">
+            {classResults.map(c => (
+              <li key={c.uuid} className="p-2 border-b last:border-b-0">
+                <strong>{c.dept} {c.code}</strong> – {c.title}
               </li>
             ))}
           </ul>
         )}
-      </div>
+      </section>
+
+      <hr />
+
+      {/* ---------- schedule-creation tester ---------- */}
+      <section className="space-y-2">
+        <h2 className="font-semibold text-lg">🗓️ Create Schedule</h2>
+        <input
+          className="border p-2 w-full"
+          placeholder="Owner Online ID"
+          value={onlineID}
+          onChange={e => setOnlineID(e.target.value)}
+        />
+        <input
+          className="border p-2 w-full"
+          placeholder="Schedule name (e.g. Spring Plan)"
+          value={schedName}
+          onChange={e => setSchedName(e.target.value)}
+        />
+        <div className="flex space-x-2">
+          <input
+            className="border p-2 flex-1"
+            placeholder="Semester (e.g. Spring)"
+            value={semester}
+            onChange={e => setSemester(e.target.value)}
+          />
+          <input
+            className="border p-2 w-24"
+            placeholder="Year"
+            value={year}
+            onChange={e => setYear(e.target.value)}
+          />
+        </div>
+        <button
+          className="bg-purple-600 text-white px-4 py-2 rounded"
+          onClick={() =>
+            callAPI(
+              'createSchedule',
+              { onlineID, scheduleName: schedName, semester, year },
+              setSchedResp
+            )
+          }
+        >
+          Create Schedule
+        </button>
+        <pre className="bg-gray-100 p-3 rounded text-sm">{schedResp}</pre>
+      </section>
     </div>
   );
 }
