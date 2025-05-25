@@ -13,11 +13,12 @@ export async function POST(req) {
     // Check if user already exists
     const { data: existingUser, error: fetchError } = await supabase
       .from('userdata')
-      .select('onlineID')
-      .eq('onlineID', onlineID)
+      .select('onlineid')
+      .eq('onlineid', onlineID)
       .maybeSingle();
 
     if (existingUser) {
+      console.error('User already exists:', existingUser);
       return Response.json({ error: 'User already exists' }, { status: 409 });
     }
 
@@ -31,7 +32,7 @@ export async function POST(req) {
     // Insert new user
     const { data: insertData, error: insertError } = await supabase
       .from('userdata')
-      .insert([{ onlineid: onlineID, passhash: passHash, isactive: true }]);
+      .insert({ onlineid: onlineID, passhash: passHash, isactive: true });
 
     console.log('Insert result:', insertData);
     console.error('Insert error:', insertError);
