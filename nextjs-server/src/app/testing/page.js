@@ -16,6 +16,10 @@ export default function TestingPage() {
   const [semester, setSemester]       = useState('');
   const [year, setYear]               = useState('');
   const [schedResp, setSchedResp]     = useState('');
+  const [renameID, setRenameID] = useState('');
+const [newSchedName, setNewSchedName] = useState('');
+const [renameResp, setRenameResp] = useState('');
+
 
   /* ---------- live-class search debounce ---------- */
   useEffect(() => {
@@ -156,6 +160,36 @@ export default function TestingPage() {
         </button>
         <pre className="bg-gray-100 p-3 rounded text-sm">{schedResp}</pre>
       </section>
+      {/* ---------- schedule rename tester ---------- */}
+<section className="space-y-2">
+  <h2 className="font-semibold text-lg">✏️ Rename Schedule</h2>
+  <input
+    className="border p-2 w-full"
+    placeholder="Schedule ID"
+    value={renameID}
+    onChange={e => setRenameID(e.target.value)}
+  />
+  <input
+    className="border p-2 w-full"
+    placeholder="New Schedule Name"
+    value={newSchedName}
+    onChange={e => setNewSchedName(e.target.value)}
+  />
+  <button
+    className="bg-yellow-500 text-white px-4 py-2 rounded"
+    onClick={() =>
+      callAPI(
+        'schedulenamechange',
+        { scheduleid: renameID, newScheduleName: newSchedName },
+        setRenameResp
+      )
+    }
+  >
+    Rename Schedule
+  </button>
+  <pre className="bg-gray-100 p-3 rounded text-sm">{renameResp}</pre>
+</section>
+
     </div>
   );
 }
