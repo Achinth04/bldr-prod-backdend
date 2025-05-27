@@ -11,8 +11,10 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.49.8",
     "bcrypt": "^6.0.0",
+    "jsdom": "^26.1.0",
     "luxon": "^3.6.1",
     "next": "15.3.2",
+    "puppeteer": "^24.9.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "uuid": "^11.1.0"
