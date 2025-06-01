@@ -30,7 +30,7 @@ export async function POST(req) {
     }
 
     const { fullPhrase, words, isDeptCodeSearch, deptPrefix, codePrefix } = prepareSearchTerms(query);
-    console.log('🔍 Search terms:', { fullPhrase, words, isDeptCodeSearch, deptPrefix, codePrefix });
+    console.log(' Search terms:', { fullPhrase, words, isDeptCodeSearch, deptPrefix, codePrefix });
 
     if (words.length === 0) {
       return Response.json([]);
