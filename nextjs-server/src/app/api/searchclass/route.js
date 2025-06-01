@@ -141,7 +141,7 @@ export async function POST(req) {
     );
 
   } catch (err) {
-    console.error('❌ Server crash:', err.message);
+    console.error(' Server crash:', err.message);
     return Response.json({ error: 'Server error', details: err.message }, { status: 500 });
   }
 }
